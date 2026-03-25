@@ -15,10 +15,9 @@ namespace DesafioB3.APIConnector
         private const string BaseUrl = "https://www.alphavantage.co";
         private const string endpoint = "TIME_SERIES_DAILY";
         private const string endpoint2 = "GLOBAL_QUOTE";
-        public Task ConfigureToken()
+        public async Task ConfigureToken()
         {
             apiKei = Environment.GetEnvironmentVariable("ALPHAVANTAGE_API_KEY");
-            throw new NotImplementedException();
         }
 
         public async Task<decimal> GetValue(string asset)
