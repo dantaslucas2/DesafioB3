@@ -10,7 +10,7 @@ using System.Text;
 
 namespace DesafioB3.Smtp.APIConnector
 {
-    internal class AlphaVantage : IApiConnector
+    public class AlphaVantage : IApiConnector
     {
         private const string BaseUrl = "https://www.alphavantage.co";
         private const string endpoint = "TIME_SERIES_DAILY";

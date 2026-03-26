@@ -7,7 +7,7 @@ using System.Text;
 using YahooFinanceApi;
 namespace DesafioB3.Smtp.APIConnector
 {
-    internal class YahooFinance : IApiConnector
+    public class YahooFinance : IApiConnector
     {
         public string ApiName { get; }
 

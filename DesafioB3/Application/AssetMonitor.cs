@@ -8,7 +8,7 @@ using System.Text;
 
 namespace DesafioB3.Application
 {
-    internal class AssetMonitor
+    public class AssetMonitor
     {
         private readonly List<IApiConnector> _apiConnectors;
         private readonly int retryTime = 5000;

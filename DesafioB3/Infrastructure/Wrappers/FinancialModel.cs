@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DesafioB3.Smtp.APIConnector
 {
-    internal class FinancialModel : IApiConnector
+    public class FinancialModel : IApiConnector
     {
         private string _apiKey;
         private const string BaseUrl = "https://financialmodelingprep.com";
