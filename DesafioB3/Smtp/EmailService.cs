@@ -27,17 +27,18 @@ namespace DesafioB3.Smtp
             {
                 var temp = AppDomain.CurrentDomain.BaseDirectory;
 
-                var current = Directory.GetCurrentDirectory();
-                var dicFilepath = Directory.GetParent(Directory.GetParent(Directory.GetParent(current).FullName).FullName);
-                string json = File.ReadAllText(Path.Combine(dicFilepath.FullName, fileName));
-                var JsonObject = JsonConvert.DeserializeObject<ModelConfig>(json);
+                var basePath = AppContext.BaseDirectory;
+                var filePath = Path.Combine(basePath, "Config.json");
 
-                fromAddress = JsonObject.SenderEmail;
+                string json = File.ReadAllText(filePath);
+                var config = JsonConvert.DeserializeObject<ModelConfig>(json);
+
+                fromAddress = config.SenderEmail;
                 smtpUsername = fromAddress;
-                smtpAppPassword = JsonObject.Password;
-                toAddress = JsonObject.RecipientEmail;
-                smtpHost = JsonObject.SmtpHost;
-                smtpPort = JsonObject.SmtpPort;
+                smtpAppPassword = config.Password;
+                toAddress = config.RecipientEmail;
+                smtpHost = config.SmtpHost;
+                smtpPort = config.SmtpPort;
                 wasConfigured = true;
 #if DEBUG
                 Console.WriteLine("Email successfully configured");
@@ -52,7 +53,6 @@ namespace DesafioB3.Smtp
 
         public static bool SendEmail(string asset, bool IsBuyer, decimal value)
         {
-            if (!wasConfigured) Config();
             try
             {
                 string subject = EmailMenssage.defaultSubject;
