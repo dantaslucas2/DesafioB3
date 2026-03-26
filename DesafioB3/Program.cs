@@ -29,37 +29,40 @@ namespace DesafioB3
                 {
                     throw new Exception("Invalid arguments");
                 }
+
                 var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
+                    .SetBasePath(AppContext.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .Build();
 
-                var emailSettings = configuration
-                    .GetSection("ApiKeys")
-                    .Get<TokensSettings>();
+                var builder = new ServiceCollection();
 
-                var serviceProvider = new ServiceCollection()
-                        .AddScoped<IApiConnector, AlphaVantage>()
-                        .AddScoped<IApiConnector, FinancialModel>()
-                        .AddScoped<IApiConnector, YahooFinance>()
-                        .AddScoped<List<IApiConnector>>(serviceProvider =>
-                        {
-                            return serviceProvider.GetServices<IApiConnector>().ToList();
-                        })
-                        .AddScoped<AssetMonitor>()
-                        .BuildServiceProvider();
+                builder.AddSingleton<IConfiguration>(configuration);
+
+                builder.Configure<TokensSettings>(configuration.GetSection("ApiKeys"));
+                builder.Configure<EmailSettings>(configuration.GetSection("Email"));
+
+                builder.AddSingleton<EmailService>();
+
+                builder.AddHttpClient<AlphaVantage>();
+                builder.AddSingleton<IApiConnector, AlphaVantage>();
+
+                builder.AddHttpClient<FinancialModel>();
+                builder.AddSingleton<IApiConnector, FinancialModel>();
+
+                builder.AddSingleton<IApiConnector, YahooFinance>();
+
+                builder.AddSingleton<AssetMonitor>();
+
+
+                var serviceProvider = builder.BuildServiceProvider();
 
                 using (var cancellationTokenSource = new CancellationTokenSource())
                 {
                     var assetMonitor = serviceProvider.GetRequiredService<AssetMonitor>();
 
-                    var task = Task.Factory.StartNew(() => assetMonitor.MonitorConnector(cancellationTokenSource, asset, targetToBuy, targetToSell), TaskCreationOptions.LongRunning);
+                    await assetMonitor.MonitorConnector(asset, targetToSell, targetToBuy, cancellationTokenSource.Token);
 
-                    Console.WriteLine("Press enter to end the program");
-                    Console.ReadLine();
-
-                    cancellationTokenSource.Cancel();
-                    await task;
                 }
             }
 

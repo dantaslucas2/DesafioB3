@@ -1,4 +1,5 @@
 ﻿using DesafioB3.Models;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,48 +11,14 @@ namespace DesafioB3.Smtp
 {
     public class EmailService
     {
-        private static bool wasConfigured = false;
-        private static string smtpHost;
-        private static int smtpPort;
-        private static string smtpUsername;
-        private static string smtpAppPassword;
+        private readonly EmailSettings _settings;
 
-        private static string fromAddress;
-        private static string toAddress;
-
-        private static string fileName = "appsetings.json";
-
-        public static void Config()
+        public EmailService(IOptions<EmailSettings> settings)
         {
-            try
-            {
-                var temp = AppDomain.CurrentDomain.BaseDirectory;
-
-                var basePath = AppContext.BaseDirectory;
-                var filePath = Path.Combine(basePath, "Config.json");
-
-                string json = File.ReadAllText(filePath);
-                var config = JsonConvert.DeserializeObject<ModelConfig>(json);
-
-                fromAddress = config.SenderEmail;
-                smtpUsername = fromAddress;
-                smtpAppPassword = config.Password;
-                toAddress = config.RecipientEmail;
-                smtpHost = config.SmtpHost;
-                smtpPort = config.SmtpPort;
-                wasConfigured = true;
-#if DEBUG
-                Console.WriteLine("Email successfully configured");
-#endif
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error loading email settings: {e}");
-                throw new NotImplementedException();
-            }
+            _settings = settings.Value;
         }
 
-        public static bool SendEmail(string asset, bool IsBuyer, decimal value)
+        public bool SendEmail(string asset, bool IsBuyer, decimal value)
         {
             try
             {
@@ -68,15 +35,17 @@ namespace DesafioB3.Smtp
                 body = body.Replace("[Contact Information]", "Contact Information");
                 body = body.Replace("[Your Position]", "Your Position");
 
-                MailMessage mail = new MailMessage(fromAddress, toAddress, subject, body);
+                MailMessage mail = new MailMessage(_settings.SenderEmail, _settings.RecipientEmail, subject, body);
                 mail.IsBodyHtml = false;
 
-                SmtpClient smtpClient = new SmtpClient(smtpHost, smtpPort);
-                smtpClient.UseDefaultCredentials = false;
-                smtpClient.Credentials = new NetworkCredential(smtpUsername, smtpAppPassword);
-                smtpClient.EnableSsl = true;
-
-                smtpClient.Send(mail);
+                var smtp = new SmtpClient(_settings.SmtpHost, _settings.SmtpPort)
+                {
+                    Credentials = new NetworkCredential(
+                        _settings.SenderEmail,
+                        _settings.Password),
+                    EnableSsl = true
+                };
+                smtp.Send(mail);
 #if DEBUG
                 Console.WriteLine("Email successfully sent");
 #endif

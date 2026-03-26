@@ -1,5 +1,6 @@
 ﻿using DesafioB3.Models;
 using DesafioB3.Models.Interfaces;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,21 +12,23 @@ namespace DesafioB3.APIConnector
 {
     internal class AlphaVantage : IApiConnector
     {
-        private string apiKei;
         private const string BaseUrl = "https://www.alphavantage.co";
         private const string endpoint = "TIME_SERIES_DAILY";
         private const string endpoint2 = "GLOBAL_QUOTE";
-        public async Task ConfigureToken()
-        {
-            apiKei = Environment.GetEnvironmentVariable("ALPHAVANTAGE_API_KEY");
-        }
 
+        private readonly HttpClient _client;
+        private readonly string _apiKey;
+        public AlphaVantage(HttpClient client, IOptions<TokensSettings> options)
+        {
+            _apiKey = options.Value.AlphaVantage;
+            _client = client;
+            _client.BaseAddress = new Uri(BaseUrl);
+        }
         public async Task<decimal> GetValue(string asset)
         {
-            HttpClient _client = new HttpClient();
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
+            var url = $"/query?function={endpoint2}&symbol={asset}.sa&apikey={_apiKey}";
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-            httpRequestMessage.RequestUri = new Uri(BaseUrl + "/query?function=" + endpoint2 + "&symbol=" + asset + ".sa&apikey=" + apiKei);
             httpRequestMessage.Method = HttpMethod.Get;
             httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -34,7 +37,6 @@ namespace DesafioB3.APIConnector
             var responseStream = await responseMessage.Content.ReadAsStreamAsync();
 
             Root objectResponse = JsonConvert.DeserializeObject<Root>(response);
-            //var objectResponse1 = Utf8Json.JsonSerializer.Deserialize<Root>(response);
 
             var value = decimal.Parse(objectResponse.GlobalQuote.Price, CultureInfo.InvariantCulture);
             return value;

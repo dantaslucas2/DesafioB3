@@ -1,5 +1,6 @@
 ﻿using DesafioB3.Models;
 using DesafioB3.Models.Interfaces;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,20 +11,23 @@ namespace DesafioB3.APIConnector
 {
     internal class FinancialModel : IApiConnector
     {
-        private string apiKei;
+        private string _apiKey;
         private const string BaseUrl = "https://financialmodelingprep.com";
         private const string endpoint = "/api/v3/quote-short/";
-        public async Task ConfigureToken()
+        private readonly HttpClient _client;
+
+        public FinancialModel(HttpClient client, IOptions<TokensSettings> options)
         {
-            apiKei = Environment.GetEnvironmentVariable("FINANCIAL_MODEL_API_KEY");
-        }
+            _apiKey = options.Value.FinancialModel;
+            _client = client;
+            _client.BaseAddress = new Uri(BaseUrl);
+          } 
 
         public async Task<decimal> GetValue(string asset)
         {
-            HttpClient _client = new HttpClient();
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
+            var url = BaseUrl + endpoint + asset + ".SA?apikey=" + _apiKey;
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-            httpRequestMessage.RequestUri = new Uri(BaseUrl + endpoint + asset + ".SA?apikey=" + apiKei);
             httpRequestMessage.Method = HttpMethod.Get;
             httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 

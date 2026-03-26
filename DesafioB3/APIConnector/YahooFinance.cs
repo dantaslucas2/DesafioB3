@@ -1,4 +1,6 @@
-﻿using DesafioB3.Models.Interfaces;
+﻿using DesafioB3.Models;
+using DesafioB3.Models.Interfaces;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +9,6 @@ namespace DesafioB3.APIConnector
 {
     internal class YahooFinance : IApiConnector
     {
-        public async Task ConfigureToken() { }
         public async Task<decimal> GetValue(string asset)
         {
             string symbol = asset + ".SA";
