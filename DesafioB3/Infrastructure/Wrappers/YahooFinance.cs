@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using YahooFinanceApi;
-namespace DesafioB3.APIConnector
+namespace DesafioB3.Smtp.APIConnector
 {
     internal class YahooFinance : IApiConnector
     {

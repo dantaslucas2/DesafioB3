@@ -1,4 +1,4 @@
-﻿using DesafioB3.Models;
+﻿using DesafioB3.Domain.Models;
 using DesafioB3.Models.Interfaces;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace DesafioB3.APIConnector
+namespace DesafioB3.Smtp.APIConnector
 {
     internal class AlphaVantage : IApiConnector
     {
@@ -29,10 +29,10 @@ namespace DesafioB3.APIConnector
             var url = $"/query?function={endpoint2}&symbol={asset}.sa&apikey={_apiKey}";
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-            httpRequestMessage.Method = HttpMethod.Get;
             httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             HttpResponseMessage responseMessage = await _client.SendAsync(httpRequestMessage);
+            responseMessage.EnsureSuccessStatusCode();
             var response = await responseMessage.Content.ReadAsStringAsync();
             var responseStream = await responseMessage.Content.ReadAsStreamAsync();
 

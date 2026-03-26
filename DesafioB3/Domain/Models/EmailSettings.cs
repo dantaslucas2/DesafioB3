@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DesafioB3.Models
+namespace DesafioB3.Domain.Models
 {
-    internal class ModelConfig
+    public class EmailSettings
     {
         public string SenderEmail { get; set; }
         public string Password { get; set; }

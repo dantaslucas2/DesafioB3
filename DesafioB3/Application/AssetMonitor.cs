@@ -1,24 +1,27 @@
-﻿using DesafioB3.Models.Interfaces;
-using DesafioB3.Smtp;
+﻿using DesafioB3.Infrastructure.Email;
+using DesafioB3.Models.Enums;
+using DesafioB3.Models.Interfaces;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DesafioB3
+namespace DesafioB3.Application
 {
     internal class AssetMonitor
     {
         private readonly List<IApiConnector> _apiConnectors;
-        private readonly int retryTime = 500;
+        private readonly int retryTime = 5000;
         private readonly EmailService _emailService;
+
+        private MonitorState _state = MonitorState.NotTriggered;
         public AssetMonitor(IEnumerable<IApiConnector> apiConnectors, EmailService emailService)
         {
             _apiConnectors = apiConnectors.ToList();
             _emailService = emailService;
         }
 
-        public async Task MonitorConnector(string asset, decimal targetBuy, decimal targetSell, CancellationToken cancellationToken)
+        public async Task MonitorConnector(string asset, decimal targetToBuy, decimal targetToSell, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -39,20 +42,29 @@ namespace DesafioB3
                 }
                 if (value is not null)
                 {
-                    if (value > targetSell)
+                    if (value > targetToSell)
                     {
-                        _emailService.SendEmail(asset, false, (decimal) value);
+                        if (_state != MonitorState.SellTriggered)
+                        {
+                            await _emailService.SendEmail(asset, false, (decimal)value);
+                            _state = MonitorState.SellTriggered;
+                        }
                     }
-                    else if (value < targetBuy)
+                    else if (value < targetToBuy)
                     {
-                        _emailService.SendEmail(asset, true, (decimal) value);
+                        if (_state != MonitorState.BuyTriggered)
+                        {
+                            await _emailService.SendEmail(asset, true, (decimal)value);
+                            _state = MonitorState.BuyTriggered;
+                        }
                     }
+                    else
+                        _state = MonitorState.NotTriggered;
                     Console.WriteLine($"Asset value: {value}");
-                    break;
                 }
                 else
                     Console.WriteLine($"All APIs are unavailable");
-                await Task.Delay(retryTime);
+                await Task.Delay(retryTime, cancellationToken);
             }
         }
     }

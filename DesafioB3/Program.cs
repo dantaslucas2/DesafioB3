@@ -1,11 +1,12 @@
-﻿using DesafioB3.APIConnector;
-using DesafioB3.Models.Interfaces;
-using DesafioB3.Smtp;
+﻿using DesafioB3.Models.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 using Microsoft.Extensions.Configuration;
-using DesafioB3.Models;
+using DesafioB3.Application;
+using DesafioB3.Domain.Models;
+using DesafioB3.Smtp.APIConnector;
+using DesafioB3.Infrastructure.Email;
 
 namespace DesafioB3
 {
@@ -17,20 +18,26 @@ namespace DesafioB3
             decimal targetToSell;
             decimal targetToBuy;
 
-            if (args.Length ==  3)
+            if (args.Length != 3)
+            {
+                Console.WriteLine("Invalid arguments \nMust provide exactly 3 arguments in the following order. \n <Asset> <SellPrice> <BuyPrice>");
+                return;
+            }
+            else if (args.Length ==  3)
             {
                 try
                 {
                     asset = args[0];
                     targetToSell = decimal.Parse(args[1], CultureInfo.InvariantCulture);
                     targetToBuy = decimal.Parse(args[2], CultureInfo.InvariantCulture);
+                    Console.WriteLine($"Asset {asset} Target to sell {targetToSell} Target to buy {targetToBuy}");
                 }
                 catch
                 {
                     throw new Exception("Invalid arguments");
                 }
 
-                var configuration = new ConfigurationBuilder()
+                var configuration = new ConfigurationBuilder()  
                     .SetBasePath(AppContext.BaseDirectory)
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
@@ -61,7 +68,13 @@ namespace DesafioB3
                 {
                     var assetMonitor = serviceProvider.GetRequiredService<AssetMonitor>();
 
-                    await assetMonitor.MonitorConnector(asset, targetToSell, targetToBuy, cancellationTokenSource.Token);
+                    Console.CancelKeyPress += (_, e) =>
+                    {
+                        e.Cancel = true;
+                        cancellationTokenSource.Cancel();
+                    };
+
+                    await assetMonitor.MonitorConnector(asset, targetToBuy, targetToSell, cancellationTokenSource.Token);
 
                 }
             }

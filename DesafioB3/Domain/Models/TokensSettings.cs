@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DesafioB3.Models
+namespace DesafioB3.Domain.Models
 {
     public class TokensSettings
     {

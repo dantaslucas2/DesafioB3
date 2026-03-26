@@ -1,4 +1,4 @@
-﻿using DesafioB3.Models;
+﻿using DesafioB3.Domain.Models;
 using DesafioB3.Models.Interfaces;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace DesafioB3.APIConnector
+namespace DesafioB3.Smtp.APIConnector
 {
     internal class FinancialModel : IApiConnector
     {
@@ -28,10 +28,10 @@ namespace DesafioB3.APIConnector
             var url = BaseUrl + endpoint + asset + ".SA?apikey=" + _apiKey;
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-            httpRequestMessage.Method = HttpMethod.Get;
             httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             HttpResponseMessage responseMessage = await _client.SendAsync(httpRequestMessage);
+            responseMessage.EnsureSuccessStatusCode();
             var response = await responseMessage.Content.ReadAsStringAsync();
             response = "{Stoke:" + response + "}";
             FinancialModelResponse objectResponse = JsonConvert.DeserializeObject<FinancialModelResponse>(response);

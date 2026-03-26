@@ -1,4 +1,4 @@
-﻿using DesafioB3.Models;
+﻿using DesafioB3.Domain.Models;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 
-namespace DesafioB3.Smtp
+namespace DesafioB3.Infrastructure.Email
 {
     public class EmailService
     {
@@ -18,7 +18,7 @@ namespace DesafioB3.Smtp
             _settings = settings.Value;
         }
 
-        public bool SendEmail(string asset, bool IsBuyer, decimal value)
+        public async Task<bool> SendEmail(string asset, bool IsBuyer, decimal value)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace DesafioB3.Smtp
                         _settings.Password),
                     EnableSsl = true
                 };
-                smtp.Send(mail);
+                await smtp.SendMailAsync(mail);
 #if DEBUG
                 Console.WriteLine("Email successfully sent");
 #endif
