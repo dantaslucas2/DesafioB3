@@ -46,9 +46,7 @@ namespace DesafioB3.Infrastructure.Email
                     EnableSsl = true
                 };
                 await smtp.SendMailAsync(mail);
-#if DEBUG
-                Console.WriteLine("Email successfully sent");
-#endif
+
                 return true;
             }
             catch (Exception ex)

@@ -11,7 +11,7 @@ namespace DesafioB3.Test
         {
 
         }
-
+         
         [Fact]
         public void EmailToBuyIntegrationTests()
         {
