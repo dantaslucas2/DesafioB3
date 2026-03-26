@@ -6,6 +6,6 @@ namespace DesafioB3.Test.Domain
 {
     public class Smtp4DevSettings
     {
-        public string BaseUrl { get; set; }
+        public string BaseUrl { get; set; } = "http://localhost:3000";
     }
 }
