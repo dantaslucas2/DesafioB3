@@ -9,6 +9,12 @@ namespace DesafioB3.Smtp.APIConnector
 {
     internal class YahooFinance : IApiConnector
     {
+        public string ApiName { get; }
+
+        public YahooFinance()
+        {
+            ApiName = "Yahoo Finance";
+        }
         public async Task<decimal> GetValue(string asset)
         {
             string symbol = asset + ".SA";

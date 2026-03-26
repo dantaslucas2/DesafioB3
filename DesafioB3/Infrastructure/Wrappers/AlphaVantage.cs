@@ -15,6 +15,7 @@ namespace DesafioB3.Smtp.APIConnector
         private const string BaseUrl = "https://www.alphavantage.co";
         private const string endpoint = "TIME_SERIES_DAILY";
         private const string endpoint2 = "GLOBAL_QUOTE";
+        public string ApiName { get; }
 
         private readonly HttpClient _client;
         private readonly string _apiKey;
@@ -23,6 +24,7 @@ namespace DesafioB3.Smtp.APIConnector
             _apiKey = options.Value.AlphaVantage;
             _client = client;
             _client.BaseAddress = new Uri(BaseUrl);
+            ApiName = "AlphaVantage";
         }
         public async Task<decimal> GetValue(string asset)
         {

@@ -14,6 +14,8 @@ namespace DesafioB3.Smtp.APIConnector
         private string _apiKey;
         private const string BaseUrl = "https://financialmodelingprep.com";
         private const string endpoint = "/api/v3/quote-short/";
+        public string ApiName { get; }
+
         private readonly HttpClient _client;
 
         public FinancialModel(HttpClient client, IOptions<TokensSettings> options)
@@ -21,6 +23,7 @@ namespace DesafioB3.Smtp.APIConnector
             _apiKey = options.Value.FinancialModel;
             _client = client;
             _client.BaseAddress = new Uri(BaseUrl);
+            ApiName = "Financial Model";
           } 
 
         public async Task<decimal> GetValue(string asset)

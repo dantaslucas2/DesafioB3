@@ -6,6 +6,7 @@ namespace DesafioB3.Models.Interfaces
 {
     public interface IApiConnector
     {
+        public string ApiName { get; }
         //Task ConfigureToken();
         Task<decimal> GetValue(string asset);
     }

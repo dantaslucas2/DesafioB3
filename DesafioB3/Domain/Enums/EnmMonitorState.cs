@@ -11,3 +11,4 @@ namespace DesafioB3.Models.Enums
         NotTriggered
     }
 }
+ 
